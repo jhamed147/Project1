@@ -1,5 +1,7 @@
 type: pipeline
+
 jobs:
+
   process_data:
     component: ./pipelines/databricks_cleaning.yml
     inputs:
