@@ -1,14 +1,14 @@
 type: pipeline
 jobs:
   process_data:
-    component: ./databricks_cleaning.yml
+    component: ./pipelines/databricks_cleaning.yml
     inputs:
       raw_data: azureml:ames_raw:1
     outputs:
       processed_data: azureml:ames_processed:1
 
   feature_engineering:
-    component: ./databricks_features.yml
+    component: ./pipelines/databricks_features.yml
     inputs:
       processed_data: azureml:ames_processed:1
     outputs:
