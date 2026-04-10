@@ -1,6 +1,6 @@
 name: databricks_features
 type: command
-command: python features.py
+command: python scripts/features.py
 environment: azureml:AzureML-sklearn-1.0-ubuntu20.04-py38-cpu:1
 inputs:
   processed_data:
