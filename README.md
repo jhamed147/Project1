@@ -1,72 +1,109 @@
-# Project1
-In this project i will build reproducible data pipeline on Azure to prepare the Amed Housing dataset for machine learning. My goal is to predict house pricing using engineered features and regression.
+# Ames Housing Price Prediction – Phase 1
 
-My pipeline is 
-Start with raw data --> start ETL(cleaning, type, imputation) --> Processed Data (Parquet in the processed container) --> EDA (distribution, correlations, and outliers) --> Feature Engineering $ selection --> then finally the Features Dataset (We add the parquet to the features container that we created)
+## Project Overview
 
-Step 1 we will do Data Ingestion:
-Source: Ames Housing dataset (CSV is from Kaggle)
-Storage: Uploaded to Azure Data Lake Storage Gen2 in a raw container.
-Access: Configured in Databricks using spark.conf.set with account key.
-Mode: Batch ingestion (static dataset).
-Preservation: Raw CSV stored and versioned.
+This project builds a reproducible data pipeline on Azure for the Ames Housing dataset to prepare it for machine learning. The overall objective is to support house price prediction using engineered features and regression models.
 
-Step 2 start the ETL process:
+The pipeline follows this flow:
 
-Cleaning:
-Dropped rows with missing target (SalePrice).
-Imputed missing numeric values (mean/median).
-Encoded categorical variables (StringIndexer + OneHotEncoder).
+Raw Data → ETL → Processed Data → EDA → Feature Engineering → Feature Dataset
 
-Type Fixes:
-Converted numeric columns to float.
-Standardized categorical columns to string.
+## 1. Data Ingestion
 
-Output: Saved as Parquet in processed container.
+The source dataset is the Ames Housing Dataset from Kaggle, stored as a CSV file. The data was uploaded to Azure Data Lake Storage Gen2 in the `raw` container. The ingestion mode is batch because the dataset is static and not streamed. The raw CSV is preserved in its original format to support reproducibility and traceability.
 
-Step 3 Cataloging & Goverance:
+## 2. ETL Process
 
-Registered datasets in Hive Metastore:
-hive_metastore.ames_schema.ames_raw
-hive_metastore.ames_schema.ames_processed
+The ETL stage was implemented in Databricks using PySpark.
 
-Added schema documentation and column comments.
+The main cleaning and transformation steps include:
 
-Lineage documented in README and tracked automatically in Hive Metastore.
+* reading the raw CSV from the `raw` container
+* removing duplicate rows
+* dropping rows with missing target values in `SalePrice`
+* imputing missing numerical values using the column mean
+* filling missing categorical values with `"Unknown"`
+* preserving schema consistency during transformation
+* writing the cleaned dataset in Parquet format to the `processed` container
 
-Step 4 we start EDA
-Distribution: SalePrice is right-skewed.
+Validation checks were also performed after cleaning:
 
-Correlations:
-Strong positive: Gr_Liv_Area, Overall_Qual.
-Moderate: Garage_Area, Total_Bsmt_SF.
+* null-value inspection across all columns
+* total row count verification
+* duplicate-check verification using unique row counts
 
-Outliers: Large houses with unusually low/high prices.
+This ensures that the processed dataset is clean, consistent, and ready for downstream analysis.
 
-Categorical Influence: Neighborhood strongly affects SalePrice.
+## 3. Cataloging and Governance
 
-Risks:
-Skewness may require log-transform.
-Multicollinearity between size-related features.
+The datasets were registered in Databricks Hive Metastore under `hive_metastore.ames_schema`.
 
-Step 5 Feature Extraction & Selection
-Engineered Features:
-Age = Yr_Sold - Year_Built
-PricePerSqFt = SalePrice / Gr_Liv_Area
+Registered tables include:
 
-Selected Features:
-Gr_Liv_Area, Garage_Area, Total_Bsmt_SF, Age, Overall_Qual, Neighborhood.
+* `ames_raw`
+* `ames_processed`
+* `ames_features`
 
-Scaling:
-StandardScaler applied to numerical features.
+The schema, storage locations, and pipeline stages were documented to provide basic governance and lineage. Unity Catalog was not enabled in the workspace, so Hive Metastore was used as the available metadata solution.
 
-Output: Saved engineered dataset in features container and registered as:
-hive_metastore.ames_schema.ames_features
+## 4. Exploratory Data Analysis
 
-Step 6 Documentation & Version control
-All notebooks synced to GitHub via Databricks Repos.
-README.md explains pipeline stages and lineage.
-Branching strategy: main, dev, feature/etl, feature/eda.
+A concise exploratory data analysis was carried out to assess data readiness for modeling.
 
+Main findings:
 
-“Unity Catalog was not enabled in my Databricks workspace, so we registered datasets in the default Hive Metastore (hive_metastore.ames_schema). This still provides lineage and governance, but without Unity Catalog’s advanced features. If Unity Catalog were available, we would have created a dedicated catalog (housing_catalog) for this project.”
+* `SalePrice` is right-skewed
+* strong positive relationships were observed with `Gr_Liv_Area` and `Overall_Qual`
+* moderate relationships were observed with `Garage_Area` and `Total_Bsmt_SF`
+* outliers were visible in some large houses with unusual prices
+* neighborhood appears to have a strong effect on pricing
+
+Potential risks identified:
+
+* skewness in the target variable
+* possible multicollinearity among size-related variables
+
+These findings helped guide feature selection and preparation for modeling.
+
+## 5. Feature Engineering and Selection
+
+Feature engineering was performed on the processed dataset to create a machine-learning-ready feature set.
+
+Engineered feature:
+
+* `Age = Yr_Sold - Year_Built`
+
+Selected core features:
+
+* `Gr_Liv_Area`
+* `Garage_Area`
+* `Total_Bsmt_SF`
+* `Age`
+* `Overall_Qual`
+
+The numerical features were assembled into a feature vector and scaled using `StandardScaler`. The resulting engineered dataset was saved in Parquet format to the `features` container and registered as `hive_metastore.ames_schema.ames_features`.
+
+## 6. Reproducibility and Version Control
+
+The project was implemented in Databricks and documented in GitHub. The repository includes:
+
+* the notebook used for implementation
+* pipeline definition files
+* modular Python scripts for cleaning and feature engineering
+* project documentation in `README.md`
+
+This structure supports reproducibility, code organization, and version control for the data pipeline.
+
+## 7. Storage Layout
+
+The Azure Data Lake Storage layout is organized into separate zones:
+
+* `raw` for original source data
+* `processed` for cleaned ETL outputs
+* `features` for engineered machine learning features
+
+This separation improves traceability and aligns with good data engineering practice.
+
+## Conclusion
+
+Phase 1 establishes the data foundation for the AI system. The dataset was ingested, cleaned, validated, analyzed, cataloged, and transformed into a feature-ready format for machine learning. This provides a reproducible base for Phase 2, which focuses on model development, validation, versioning, and deployment.
