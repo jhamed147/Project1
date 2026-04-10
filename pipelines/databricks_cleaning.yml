@@ -1,0 +1,10 @@
+name: databricks_cleaning
+type: command
+command: python cleaning.py
+environment: azureml:AzureML-sklearn-1.0-ubuntu20.04-py38-cpu:1
+inputs:
+  raw_data:
+    type: uri_folder
+outputs:
+  processed_data:
+    type: uri_folder
