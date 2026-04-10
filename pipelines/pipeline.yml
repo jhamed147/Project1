@@ -1,6 +1,6 @@
+type: pipeline
 jobs:
   process_data:
-    type: command
     component: ./databricks_cleaning.yml
     inputs:
       raw_data: azureml:ames_raw:1
@@ -8,10 +8,8 @@ jobs:
       processed_data: azureml:ames_processed:1
 
   feature_engineering:
-    type: command
     component: ./databricks_features.yml
     inputs:
       processed_data: azureml:ames_processed:1
     outputs:
       features: azureml:ames_features:1
-
