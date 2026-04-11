@@ -1,0 +1,20 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+type: command
+
+display_name: ames_training_job
+experiment_name: ames_housing_experiment
+
+code: ../src
+
+command: >
+  python train.py --output ${{outputs.model_output}}
+
+outputs:
+  model_output:
+    type: uri_folder
+
+environment:
+  image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
+  conda_file: ../env/training_conda.yml
+
+compute: azureml:cluster-60305219
