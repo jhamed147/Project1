@@ -8,7 +8,7 @@ steps:
 - task: AzureCLI@2
   displayName: Run Azure ML training job
   inputs:
-    azureSubscription: 'SC-UDST-CCIT-DSAI3202-60305219'
+    azureSubscription: 'SC-UDST-CCIT-DSAI3202-1'
     scriptType: bash
     scriptLocation: inlineScript
     inlineScript: |
